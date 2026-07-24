@@ -1,0 +1,6 @@
+{
+  "name": "QuickBite Food Delivery",
+  "description": "A food delivery app prototype with restaurant menus, interactive cart, dish customization, live order tracking, and YAML app spec builder.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
