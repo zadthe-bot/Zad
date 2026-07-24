@@ -13,17 +13,17 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <div className="w-full overflow-x-auto py-2 scrollbar-none flex items-center gap-2.5">
+    <div className="w-full overflow-x-auto py-3 px-1 scrollbar-none flex items-center gap-3">
       {categories.map((cat) => {
         const isSelected = selectedCategory === cat.id;
         return (
           <button
             key={cat.id}
             onClick={() => onSelectCategory(cat.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+            className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black whitespace-nowrap transition-all cursor-pointer ${
               isSelected
-                ? 'bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/10 scale-102'
-                : 'bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300'
+                ? 'clay-button-orange scale-102'
+                : 'clay-pill text-slate-800 hover:text-black'
             }`}
           >
             <span className="text-base leading-none">{cat.emoji}</span>
@@ -34,3 +34,4 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 };
+

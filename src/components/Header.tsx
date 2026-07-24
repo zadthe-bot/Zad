@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Search, ShoppingBag, Code, ChevronDown, Clock, Heart } from 'lucide-react';
+import { MapPin, Search, ShoppingBag, Code, ChevronDown, Clock, Smartphone } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
   activeTab: ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
   onOpenYamlModal: () => void;
+  onOpenMobileExportModal: () => void;
   activeOrderCount: number;
 }
 
@@ -25,63 +26,74 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onTabChange,
   onOpenYamlModal,
+  onOpenMobileExportModal,
   activeOrderCount,
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs">
+    <header className="sticky top-0 z-40 bg-[#f0f3f8]/90 backdrop-blur-md border-b border-white/60 shadow-[0_4px_16px_rgba(208,215,226,0.6)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-20 gap-4">
           
           {/* Logo & Brand */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <button
               onClick={() => onTabChange('explore')}
-              className="flex items-center gap-2 group cursor-pointer text-left"
+              className="flex items-center gap-2.5 group cursor-pointer text-left"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <span className="text-xl font-black tracking-tight">Q</span>
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white shadow-[4px_4px_10px_rgba(240,78,14,0.35),-2px_-2px_6px_rgba(255,255,255,0.8)] border border-white/30 group-hover:scale-105 transition-transform">
+                <span className="text-2xl font-black tracking-tighter">Q</span>
               </div>
               <div className="hidden sm:block">
-                <span className="text-lg font-bold tracking-tight text-slate-900 block leading-tight">
+                <span className="text-xl font-black tracking-tight text-slate-950 block leading-none">
                   Quick<span className="text-orange-600">Bite</span>
                 </span>
-                <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider block">
-                  Food Express
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest block mt-0.5">
+                  Clay Express
                 </span>
               </div>
             </button>
 
-            {/* Address Switcher */}
+            {/* Address Switcher - Inset Clay Well */}
             <button
               onClick={onOpenAddressModal}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition-colors cursor-pointer text-xs sm:text-sm text-slate-700 font-medium max-w-[200px] sm:max-w-[260px] truncate"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-2xl clay-input hover:border-orange-300 transition-colors cursor-pointer text-xs sm:text-sm text-slate-800 font-bold max-w-[180px] sm:max-w-[240px] truncate"
               title="Change Delivery Location"
             >
-              <MapPin className="w-4 h-4 text-orange-500 shrink-0" />
+              <MapPin className="w-4 h-4 text-orange-600 shrink-0" />
               <span className="truncate">{currentAddress}</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-600 shrink-0" />
             </button>
           </div>
 
-          {/* Search Bar - Desktop */}
+          {/* Search Bar - Inset Clay Input */}
           <div className="hidden md:flex flex-1 max-w-md relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search dishes, sushi, pizza, or restaurants..."
+              placeholder="Search pizza, sushi, burgers..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-full bg-slate-100/80 focus:bg-white text-sm text-slate-800 placeholder-slate-400 border border-transparent focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/10 transition-all"
+              className="w-full pl-11 pr-4 py-2.5 rounded-2xl clay-input text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all"
             />
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-            {/* Spec / YAML Export Button */}
+            {/* Mobile App conversion button */}
+            <button
+              onClick={onOpenMobileExportModal}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl clay-button-black text-xs font-extrabold cursor-pointer"
+              title="Learn how to turn this TSX code into an iOS / Android App"
+            >
+              <Smartphone className="w-4 h-4 text-orange-400" />
+              <span className="hidden lg:inline">Mobile App</span>
+            </button>
+
+            {/* YAML Spec Button */}
             <button
               onClick={onOpenYamlModal}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-2xl clay-pill text-slate-800 hover:text-orange-600 text-xs font-bold transition-colors cursor-pointer"
               title="View & Edit App Architecture Specs (YAML)"
             >
               <Code className="w-3.5 h-3.5 text-orange-600" />
@@ -91,16 +103,14 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Active Orders Tracker Toggle */}
             <button
               onClick={() => onTabChange('orders')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                activeTab === 'orders'
-                  ? 'bg-orange-50 text-orange-600 border border-orange-200'
-                  : 'text-slate-600 hover:bg-slate-100'
+              className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                activeTab === 'orders' ? 'clay-pill-active' : 'clay-pill text-slate-700'
               }`}
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-4 h-4 text-orange-500" />
               <span className="hidden sm:inline">Orders</span>
               {activeOrderCount > 0 && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-black text-white shadow-xs">
                   {activeOrderCount}
                 </span>
               )}
@@ -109,12 +119,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Cart Button */}
             <button
               onClick={onOpenCart}
-              className="relative flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold shadow-sm shadow-orange-500/20 active:scale-95 transition-all cursor-pointer"
+              className="relative flex items-center gap-2 px-4 py-2.5 rounded-2xl clay-button-orange text-sm font-bold cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">Cart</span>
               {cartCount > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.5 bg-white text-orange-600 rounded-full text-xs font-bold shadow-xs">
+                <span className="ml-0.5 px-2 py-0.5 bg-black text-white rounded-full text-xs font-black shadow-xs">
                   {cartCount}
                 </span>
               )}
@@ -132,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
               placeholder="Search dishes or restaurants..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 text-sm text-slate-800 placeholder-slate-400 border border-transparent focus:border-orange-500 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl clay-input text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
             />
           </div>
         </div>
@@ -141,3 +151,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+

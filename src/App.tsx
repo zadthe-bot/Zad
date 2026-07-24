@@ -11,6 +11,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { OrderTracker } from './components/OrderTracker';
 import { YamlSpecModal } from './components/YamlSpecModal';
 import { AddressModal } from './components/AddressModal';
+import { MobileExportModal } from './components/MobileExportModal';
 
 import {
   CUISINE_CATEGORIES,
@@ -28,7 +29,7 @@ import {
   ActiveTab,
 } from './types';
 
-import { ArrowUpDown, Heart, Sparkles, Utensils, Bike } from 'lucide-react';
+import { ArrowUpDown, Utensils } from 'lucide-react';
 
 export default function App() {
   // Navigation & View state
@@ -60,6 +61,7 @@ export default function App() {
 
   // Modals
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
+  const [isMobileExportModalOpen, setIsMobileExportModalOpen] = useState<boolean>(false);
 
   // Favorite toggle
   const handleToggleFavorite = (restaurantId: string, e: React.MouseEvent) => {
@@ -219,7 +221,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/60 font-sans text-slate-900 antialiased selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-[#f0f3f8] font-sans text-slate-900 antialiased selection:bg-orange-500 selection:text-white">
       
       {/* Top Header */}
       <Header
@@ -235,6 +237,7 @@ export default function App() {
           if (tab === 'explore') setSelectedRestaurant(null);
         }}
         onOpenYamlModal={() => setIsYamlModalOpen(true)}
+        onOpenMobileExportModal={() => setIsMobileExportModalOpen(true)}
         activeOrderCount={orders.length}
       />
 
@@ -272,9 +275,9 @@ export default function App() {
             />
 
             {/* Cuisines Filter Row */}
-            <div className="my-6">
-              <h2 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">
-                Browse Cuisines
+            <div className="my-8">
+              <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest mb-3 pl-1">
+                Explore Cuisines
               </h2>
               <CategoryFilter
                 categories={CUISINE_CATEGORIES}
@@ -284,20 +287,20 @@ export default function App() {
             </div>
 
             {/* Sorting & Restaurant Count Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pt-4 border-t border-slate-200/60">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pt-4 border-t border-slate-300/60">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-black text-slate-950 tracking-tight">
                   {activeTab === 'favorites' ? 'Favorite Spots' : 'Featured Restaurants'}
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                <span className="px-3 py-1 rounded-2xl clay-pill text-slate-900 text-xs font-black">
                   {filteredRestaurants.length}
                 </span>
               </div>
 
               {/* Sort Switcher Pills */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <span className="text-xs text-slate-600 font-semibold flex items-center gap-1 pr-1">
-                  <ArrowUpDown className="w-3 h-3" />
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-xs text-slate-700 font-extrabold flex items-center gap-1 pr-1">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-orange-600" />
                   <span>Sort:</span>
                 </span>
                 {[
@@ -309,10 +312,10 @@ export default function App() {
                   <button
                     key={sort.id}
                     onClick={() => setSortBy(sort.id as any)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                    className={`px-3.5 py-1.5 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                       sortBy === sort.id
-                        ? 'bg-orange-500 text-white shadow-xs'
-                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'clay-button-orange'
+                        : 'clay-pill text-slate-800 hover:text-black'
                     }`}
                   >
                     {sort.label}
@@ -323,12 +326,12 @@ export default function App() {
 
             {/* Restaurants Grid */}
             {filteredRestaurants.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-xs max-w-md mx-auto my-12">
-                <div className="w-16 h-16 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mx-auto mb-4">
-                  <Utensils className="w-8 h-8" />
+              <div className="clay-card p-12 text-center max-w-md mx-auto my-12">
+                <div className="w-16 h-16 rounded-2xl clay-button-orange flex items-center justify-center mx-auto mb-4">
+                  <Utensils className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">No restaurants found</h3>
-                <p className="text-xs text-slate-500 mb-6">
+                <h3 className="text-lg font-black text-slate-950 mb-1">No restaurants found</h3>
+                <p className="text-xs text-slate-600 font-medium mb-6">
                   Try clearing your search filters or browse other categories.
                 </p>
                 <button
@@ -336,13 +339,13 @@ export default function App() {
                     setSelectedCategory('all');
                     setSearchQuery('');
                   }}
-                  className="px-5 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="px-6 py-3 rounded-2xl clay-button-black text-xs font-black cursor-pointer"
                 >
                   Reset Filters
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredRestaurants.map((rest) => (
                   <RestaurantCard
                     key={rest.id}
@@ -390,6 +393,12 @@ export default function App() {
         onClose={() => setIsYamlModalOpen(false)}
       />
 
+      {/* Mobile App Conversion Guide Modal */}
+      <MobileExportModal
+        isOpen={isMobileExportModalOpen}
+        onClose={() => setIsMobileExportModalOpen(false)}
+      />
+
       {/* Address Switcher Modal */}
       <AddressModal
         isOpen={isAddressModalOpen}
@@ -401,3 +410,4 @@ export default function App() {
     </div>
   );
 }
+
