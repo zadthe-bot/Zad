@@ -1,4 +1,4 @@
-name: Build Mobile Apps (Capacitor)
+name: Build Android APKk
 
 on:
   push:
@@ -8,32 +8,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
-    name: Build Android APK
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Clean install dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm install
 
-      - name: Build Web App
+      - name: Rebuild native modules
+        run: npm rebuild
+
+      - name: Build web app
         run: npm run build
 
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: temurin
           java-version: "17"
 
-      - name: Add Android Platform
+      - name: Sync Capacitor
         run: |
           npx cap add android || true
           npx cap sync android
@@ -47,5 +52,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: QuickBite-Android-APK
+          name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
