@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Header
 } from './components/Header';
@@ -12,6 +12,14 @@ import { OrderTracker } from './components/OrderTracker';
 import { YamlSpecModal } from './components/YamlSpecModal';
 import { AddressModal } from './components/AddressModal';
 import { MobileExportModal } from './components/MobileExportModal';
+import { SupabaseModal } from './components/SupabaseModal';
+import {
+  saveOrderToSupabase,
+  fetchOrdersFromSupabase,
+  syncFavoritesWithSupabase,
+  fetchFavoritesFromSupabase,
+  isSupabaseConfigured,
+} from './lib/supabase';
 
 import {
   CUISINE_CATEGORIES,
@@ -62,15 +70,46 @@ export default function App() {
   // Modals
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
   const [isMobileExportModalOpen, setIsMobileExportModalOpen] = useState<boolean>(false);
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState<boolean>(false);
+
+  // Sync with Supabase on load if configured
+  useEffect(() => {
+    if (isSupabaseConfigured) {
+      fetchOrdersFromSupabase().then((dbOrders) => {
+        if (dbOrders && dbOrders.length > 0) {
+          // Re-hydrate restaurant object if available
+          const hydrated = dbOrders.map((o: any) => ({
+            ...o,
+            restaurant: MOCK_RESTAURANTS.find((r) => r.id === o.restaurantId) || null,
+            createdAt: new Date(o.createdAt),
+            driver: MOCK_DRIVER,
+          }));
+          setOrders(hydrated);
+          setActiveOrder(hydrated[0]);
+        }
+      });
+
+      fetchFavoritesFromSupabase().then((dbFavs) => {
+        if (dbFavs && dbFavs.length > 0) {
+          setFavorites(dbFavs);
+        }
+      });
+    }
+  }, []);
 
   // Favorite toggle
   const handleToggleFavorite = (restaurantId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFavorites((prev) =>
-      prev.includes(restaurantId)
+    setFavorites((prev) => {
+      const next = prev.includes(restaurantId)
         ? prev.filter((id) => id !== restaurantId)
-        : [...prev, restaurantId]
-    );
+        : [...prev, restaurantId];
+      
+      if (isSupabaseConfigured) {
+        syncFavoritesWithSupabase(next);
+      }
+      return next;
+    });
   };
 
   // Add Dish to Cart
@@ -185,6 +224,15 @@ export default function App() {
       driver: MOCK_DRIVER,
     };
 
+    if (isSupabaseConfigured) {
+      saveOrderToSupabase({
+        ...newOrder,
+        restaurantId: cartRestaurant.id,
+        restaurantName: cartRestaurant.name,
+        estimatedDeliveryTime: '25 mins',
+      });
+    }
+
     setOrders((prev) => [newOrder, ...prev]);
     setActiveOrder(newOrder);
     setCartItems([]);
@@ -238,6 +286,7 @@ export default function App() {
         }}
         onOpenYamlModal={() => setIsYamlModalOpen(true)}
         onOpenMobileExportModal={() => setIsMobileExportModalOpen(true)}
+        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
         activeOrderCount={orders.length}
       />
 
@@ -405,6 +454,12 @@ export default function App() {
         onClose={() => setIsAddressModalOpen(false)}
         currentAddress={currentAddress}
         onSelectAddress={setCurrentAddress}
+      />
+
+      {/* Supabase Database Settings Modal */}
+      <SupabaseModal
+        isOpen={isSupabaseModalOpen}
+        onClose={() => setIsSupabaseModalOpen(false)}
       />
 
     </div>

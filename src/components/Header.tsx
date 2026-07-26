@@ -1,6 +1,7 @@
 import React from 'react';
-import { MapPin, Search, ShoppingBag, Code, ChevronDown, Clock, Smartphone } from 'lucide-react';
+import { MapPin, Search, ShoppingBag, Code, ChevronDown, Clock, Smartphone, Database } from 'lucide-react';
 import { ActiveTab } from '../types';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface HeaderProps {
   currentAddress: string;
@@ -13,6 +14,7 @@ interface HeaderProps {
   onTabChange: (tab: ActiveTab) => void;
   onOpenYamlModal: () => void;
   onOpenMobileExportModal: () => void;
+  onOpenSupabaseModal: () => void;
   activeOrderCount: number;
 }
 
@@ -27,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onOpenYamlModal,
   onOpenMobileExportModal,
+  onOpenSupabaseModal,
   activeOrderCount,
 }) => {
   return (
@@ -80,6 +83,22 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Supabase Button */}
+            <button
+              onClick={onOpenSupabaseModal}
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                isSupabaseConfigured
+                  ? 'bg-emerald-600 text-white shadow-[3px_3px_8px_rgba(16,185,129,0.35)]'
+                  : 'clay-pill text-slate-800 hover:text-emerald-700'
+              }`}
+              title="Supabase Database Settings"
+            >
+              <Database className={`w-3.5 h-3.5 ${isSupabaseConfigured ? 'text-white' : 'text-emerald-600'}`} />
+              <span className="hidden md:inline">
+                {isSupabaseConfigured ? 'Supabase' : 'Supabase (Demo)'}
+              </span>
+            </button>
+
             {/* Mobile App conversion button */}
             <button
               onClick={onOpenMobileExportModal}
