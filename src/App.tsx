@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Header
-} from './components/Header';
+import { Header } from './components/Header';
 import { CategoryFilter } from './components/CategoryFilter';
 import { PromoBanners } from './components/PromoBanners';
 import { RestaurantCard } from './components/RestaurantCard';
@@ -12,14 +10,24 @@ import { OrderTracker } from './components/OrderTracker';
 import { YamlSpecModal } from './components/YamlSpecModal';
 import { AddressModal } from './components/AddressModal';
 import { MobileExportModal } from './components/MobileExportModal';
-import { SupabaseModal } from './components/SupabaseModal';
+import { FirebaseModal } from './components/FirebaseModal';
+import { InteractiveMap } from './components/InteractiveMap';
 import {
-  saveOrderToSupabase,
-  fetchOrdersFromSupabase,
-  syncFavoritesWithSupabase,
-  fetchFavoritesFromSupabase,
-  isSupabaseConfigured,
-} from './lib/supabase';
+  saveOrderToFirebase,
+  fetchOrdersFromFirebase,
+  syncFavoritesWithFirebase,
+  fetchFavoritesFromFirebase,
+  seedAndFetchRestaurants,
+  saveRestaurantsToFirebase,
+  fetchRestaurantsFromFirebase,
+  isFirebaseConfigured,
+} from './lib/firebase';
+
+import {
+  getCurrentGpsLocation,
+  geocodeCity,
+  fetchNearbyRealRestaurants,
+} from './lib/locationService';
 
 import {
   CUISINE_CATEGORIES,
@@ -37,17 +45,29 @@ import {
   ActiveTab,
 } from './types';
 
-import { ArrowUpDown, Utensils } from 'lucide-react';
+import { ArrowUpDown, Utensils, MapPin, Navigation, Loader2, CheckCircle2, Flame, Map as MapIcon, Grid } from 'lucide-react';
 
 export default function App() {
   // Navigation & View state
   const [activeTab, setActiveTab] = useState<ActiveTab>('explore');
+  const [feedViewMode, setFeedViewMode] = useState<'grid' | 'map'>('grid');
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
-  // Address
-  const [currentAddress, setCurrentAddress] = useState<string>('742 Evergreen Terrace, San Francisco, CA');
+  // Address & GPS Location state
+  const [currentAddress, setCurrentAddress] = useState<string>('Iringa, Tanzania');
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>({
+    lat: -7.7731,
+    lng: 35.6994,
+  });
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
+  const [isDetectingGps, setIsDetectingGps] = useState<boolean>(false);
+  const [isLoadingNearby, setIsLoadingNearby] = useState<boolean>(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
+
+  // Dynamic Restaurant & Dish Collections
+  const [restaurants, setRestaurants] = useState<Restaurant[]>(MOCK_RESTAURANTS);
+  const [dishesMap, setDishesMap] = useState<Record<string, Dish[]>>(MOCK_DISHES);
 
   // Category & Search Filters
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -55,7 +75,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState<'popular' | 'rating' | 'fastest' | 'free_delivery'>('popular');
 
   // Favorites
-  const [favorites, setFavorites] = useState<string[]>(['rest-1', 'rest-4']);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   // Cart State
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -70,17 +90,61 @@ export default function App() {
   // Modals
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
   const [isMobileExportModalOpen, setIsMobileExportModalOpen] = useState<boolean>(false);
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState<boolean>(false);
+  const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState<boolean>(false);
 
-  // Sync with Supabase on load if configured
+  // Fetch real restaurants for location
+  const loadRealRestaurantsForLocation = async (addressQuery: string, useGps: boolean = false) => {
+    setIsLoadingNearby(true);
+    if (useGps) setIsDetectingGps(true);
+
+    try {
+      let coords;
+      if (useGps) {
+        coords = await getCurrentGpsLocation();
+      } else {
+        coords = await geocodeCity(addressQuery);
+      }
+
+      const { restaurants: realRest, dishes: realDishes } = await fetchNearbyRealRestaurants(
+        coords.lat,
+        coords.lng,
+        coords.addressName
+      );
+
+      if (realRest && realRest.length > 0) {
+        setRestaurants(realRest);
+        setDishesMap((prev) => ({ ...prev, ...realDishes }));
+        setCurrentAddress(coords.addressName);
+        setUserCoords({ lat: coords.lat, lng: coords.lng });
+        
+        // Save fetched real restaurants to Firebase Firestore
+        await saveRestaurantsToFirebase(realRest);
+
+        setLocationNotice(
+          `📍 Connected to Firebase: Loaded ${realRest.length} real food spots in ${coords.addressName} and saved to database!`
+        );
+      }
+    } catch (err: any) {
+      console.warn('Location load error:', err);
+      setLocationNotice(`Using fallback dataset for ${addressQuery}`);
+    } finally {
+      setIsLoadingNearby(false);
+      setIsDetectingGps(false);
+    }
+  };
+
+  // Sync with Firebase & Initial Location on load
   useEffect(() => {
-    if (isSupabaseConfigured) {
-      fetchOrdersFromSupabase().then((dbOrders) => {
+    // 1. Initial real restaurant fetch for Iringa, Tanzania
+    loadRealRestaurantsForLocation('Iringa, Tanzania');
+
+    // 2. Hydrate Firebase orders & favorites if present
+    if (isFirebaseConfigured) {
+      fetchOrdersFromFirebase().then((dbOrders) => {
         if (dbOrders && dbOrders.length > 0) {
-          // Re-hydrate restaurant object if available
           const hydrated = dbOrders.map((o: any) => ({
             ...o,
-            restaurant: MOCK_RESTAURANTS.find((r) => r.id === o.restaurantId) || null,
+            restaurant: restaurants.find((r) => r.id === o.restaurantId) || MOCK_RESTAURANTS[0],
             createdAt: new Date(o.createdAt),
             driver: MOCK_DRIVER,
           }));
@@ -89,13 +153,23 @@ export default function App() {
         }
       });
 
-      fetchFavoritesFromSupabase().then((dbFavs) => {
+      fetchFavoritesFromFirebase().then((dbFavs) => {
         if (dbFavs && dbFavs.length > 0) {
           setFavorites(dbFavs);
         }
       });
     }
   }, []);
+
+  // Handle Address change selection from Modal
+  const handleSelectAddress = (newAddr: string) => {
+    loadRealRestaurantsForLocation(newAddr, false);
+  };
+
+  // Handle GPS location click
+  const handleDetectGps = () => {
+    loadRealRestaurantsForLocation('', true);
+  };
 
   // Favorite toggle
   const handleToggleFavorite = (restaurantId: string, e: React.MouseEvent) => {
@@ -105,8 +179,8 @@ export default function App() {
         ? prev.filter((id) => id !== restaurantId)
         : [...prev, restaurantId];
       
-      if (isSupabaseConfigured) {
-        syncFavoritesWithSupabase(next);
+      if (isFirebaseConfigured) {
+        syncFavoritesWithFirebase(next);
       }
       return next;
     });
@@ -119,7 +193,6 @@ export default function App() {
     selectedOptions: SelectedOption[],
     specialInstructions: string
   ) => {
-    // If cart belongs to another restaurant, prompt or reset
     if (cartRestaurant && cartRestaurant.id !== dish.restaurantId) {
       if (!confirm('Start a new cart? Adding items from another restaurant will clear your current cart.')) {
         return;
@@ -127,7 +200,7 @@ export default function App() {
       setCartItems([]);
     }
 
-    const currentRest = MOCK_RESTAURANTS.find((r) => r.id === dish.restaurantId) || null;
+    const currentRest = restaurants.find((r) => r.id === dish.restaurantId) || null;
     setCartRestaurant(currentRest);
 
     const optionsPrice = selectedOptions.reduce((sum, opt) => sum + opt.price, 0);
@@ -150,7 +223,7 @@ export default function App() {
     setIsCartOpen(true);
   };
 
-  // Quick Add (no options)
+  // Quick Add
   const handleQuickAddDish = (dish: Dish) => {
     handleAddToCart(dish, 1, [], '');
   };
@@ -218,14 +291,16 @@ export default function App() {
       discount,
       total,
       deliveryAddress: currentAddress,
+      userLat: userCoords.lat,
+      userLng: userCoords.lng,
       createdAt: new Date(),
       status: 'confirmed',
       estimatedDeliveryMinutes: 25,
       driver: MOCK_DRIVER,
     };
 
-    if (isSupabaseConfigured) {
-      saveOrderToSupabase({
+    if (isFirebaseConfigured) {
+      saveOrderToFirebase({
         ...newOrder,
         restaurantId: cartRestaurant.id,
         restaurantName: cartRestaurant.name,
@@ -242,7 +317,7 @@ export default function App() {
   };
 
   // Filter restaurants logic
-  const filteredRestaurants = MOCK_RESTAURANTS.filter((rest) => {
+  const filteredRestaurants = restaurants.filter((rest) => {
     // Cuisine category filter
     const matchesCategory =
       selectedCategory === 'all' ||
@@ -269,7 +344,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f0f3f8] font-sans text-slate-900 antialiased selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-orange-500 selection:text-white">
       
       {/* Top Header */}
       <Header
@@ -286,7 +361,7 @@ export default function App() {
         }}
         onOpenYamlModal={() => setIsYamlModalOpen(true)}
         onOpenMobileExportModal={() => setIsMobileExportModalOpen(true)}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+        onOpenFirebaseModal={() => setIsFirebaseModalOpen(true)}
         activeOrderCount={orders.length}
       />
 
@@ -306,7 +381,7 @@ export default function App() {
           /* VIEW 2: Restaurant Detail Menu View */
           <RestaurantDetail
             restaurant={selectedRestaurant}
-            dishes={MOCK_DISHES[selectedRestaurant.id] || []}
+            dishes={dishesMap[selectedRestaurant.id] || []}
             onBack={() => setSelectedRestaurant(null)}
             onSelectDish={(dish) => setSelectedDish(dish)}
             onQuickAddDish={handleQuickAddDish}
@@ -315,6 +390,68 @@ export default function App() {
           /* VIEW 3: Main Restaurant Browsing Feed */
           <div>
             
+            {/* GPS & Location Banner Bar */}
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-[#121824] to-slate-900 border border-slate-800 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                  <MapPin className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-orange-400">
+                      Real Nearby Places
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black border border-emerald-500/30 flex items-center gap-1">
+                      <Flame className="w-3 h-3 text-orange-400 fill-orange-400" />
+                      Firebase Synced
+                    </span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5 mt-0.5">
+                    <span>Restaurants in {currentAddress}</span>
+                  </h3>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDetectGps}
+                  disabled={isDetectingGps || isLoadingNearby}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all cursor-pointer shadow-md shadow-orange-500/20 disabled:opacity-50"
+                  title="Detect GPS location"
+                >
+                  {isDetectingGps || isLoadingNearby ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Navigation className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isDetectingGps ? 'Locating...' : 'Use My GPS'}</span>
+                </button>
+
+                <button
+                  onClick={() => setIsAddressModalOpen(true)}
+                  className="px-3 py-2 rounded-xl minimal-grey-pill text-xs font-bold text-slate-300 hover:text-white cursor-pointer"
+                >
+                  Change City
+                </button>
+              </div>
+            </div>
+
+            {/* Notification badge if location synced */}
+            {locationNotice && (
+              <div className="mb-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-bold flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{locationNotice}</span>
+                </div>
+                <button
+                  onClick={() => setLocationNotice(null)}
+                  className="text-emerald-400 hover:text-white text-xs cursor-pointer ml-2"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {/* Promo Banner Carousel */}
             <PromoBanners
               onApplyPromoClick={(code) => {
@@ -325,7 +462,7 @@ export default function App() {
 
             {/* Cuisines Filter Row */}
             <div className="my-8">
-              <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest mb-3 pl-1">
+              <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">
                 Explore Cuisines
               </h2>
               <CategoryFilter
@@ -335,21 +472,47 @@ export default function App() {
               />
             </div>
 
-            {/* Sorting & Restaurant Count Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pt-4 border-t border-slate-300/60">
+            {/* Sorting & View Switcher Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pt-4 border-t border-slate-800">
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-black text-slate-950 tracking-tight">
+                <h2 className="text-xl font-black text-white tracking-tight">
                   {activeTab === 'favorites' ? 'Favorite Spots' : 'Featured Restaurants'}
                 </h2>
-                <span className="px-3 py-1 rounded-2xl clay-pill text-slate-900 text-xs font-black">
+                <span className="px-3 py-1 rounded-2xl minimal-grey-pill text-orange-400 text-xs font-black">
                   {filteredRestaurants.length}
                 </span>
+
+                {/* View Switcher Toggle */}
+                <div className="flex items-center bg-slate-900 border border-slate-800 p-1 rounded-2xl ml-2">
+                  <button
+                    onClick={() => setFeedViewMode('grid')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      feedViewMode === 'grid'
+                        ? 'orange-button font-black shadow-xs'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Grid className="w-3.5 h-3.5" />
+                    <span>Grid</span>
+                  </button>
+                  <button
+                    onClick={() => setFeedViewMode('map')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      feedViewMode === 'map'
+                        ? 'orange-button font-black shadow-xs'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <MapIcon className="w-3.5 h-3.5" />
+                    <span>Map View</span>
+                  </button>
+                </div>
               </div>
 
               {/* Sort Switcher Pills */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                <span className="text-xs text-slate-700 font-extrabold flex items-center gap-1 pr-1">
-                  <ArrowUpDown className="w-3.5 h-3.5 text-orange-600" />
+                <span className="text-xs text-slate-400 font-bold flex items-center gap-1 pr-1">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-orange-400" />
                   <span>Sort:</span>
                 </span>
                 {[
@@ -363,8 +526,8 @@ export default function App() {
                     onClick={() => setSortBy(sort.id as any)}
                     className={`px-3.5 py-1.5 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                       sortBy === sort.id
-                        ? 'clay-button-orange'
-                        : 'clay-pill text-slate-800 hover:text-black'
+                        ? 'orange-button'
+                        : 'minimal-grey-pill text-slate-300 hover:text-white'
                     }`}
                   >
                     {sort.label}
@@ -373,35 +536,66 @@ export default function App() {
               </div>
             </div>
 
-            {/* Restaurants Grid */}
-            {filteredRestaurants.length === 0 ? (
-              <div className="clay-card p-12 text-center max-w-md mx-auto my-12">
-                <div className="w-16 h-16 rounded-2xl clay-button-orange flex items-center justify-center mx-auto mb-4">
+            {/* Restaurants Content Display */}
+            {isLoadingNearby ? (
+              <div className="dark-card p-12 text-center max-w-md mx-auto my-12">
+                <Loader2 className="w-10 h-10 animate-spin text-orange-500 mx-auto mb-4" />
+                <h3 className="text-lg font-black text-white mb-1">Locating Real Restaurants...</h3>
+                <p className="text-xs text-slate-400 font-medium">
+                  Querying OpenStreetMap food places in {currentAddress} and syncing to Firebase Firestore...
+                </p>
+              </div>
+            ) : filteredRestaurants.length === 0 ? (
+              <div className="dark-card p-12 text-center max-w-md mx-auto my-12">
+                <div className="w-16 h-16 rounded-2xl orange-button flex items-center justify-center mx-auto mb-4">
                   <Utensils className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-black text-slate-950 mb-1">No restaurants found</h3>
-                <p className="text-xs text-slate-600 font-medium mb-6">
-                  Try clearing your search filters or browse other categories.
+                <h3 className="text-lg font-black text-white mb-1">No restaurants found</h3>
+                <p className="text-xs text-slate-400 font-medium mb-6">
+                  Try clearing your search filters or change delivery location to find restaurants.
                 </p>
                 <button
                   onClick={() => {
                     setSelectedCategory('all');
                     setSearchQuery('');
                   }}
-                  className="px-6 py-3 rounded-2xl clay-button-black text-xs font-black cursor-pointer"
+                  className="px-6 py-3 rounded-2xl orange-button text-xs font-black cursor-pointer"
                 >
                   Reset Filters
                 </button>
               </div>
+            ) : feedViewMode === 'map' ? (
+              <div className="space-y-6">
+                <InteractiveMap
+                  userLat={userCoords.lat}
+                  userLng={userCoords.lng}
+                  userAddress={currentAddress}
+                  restaurants={filteredRestaurants}
+                  selectedRestaurant={selectedRestaurant}
+                  onSelectRestaurant={(rest) => setSelectedRestaurant(rest)}
+                />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredRestaurants.map((restaurant) => (
+                    <RestaurantCard
+                      key={restaurant.id}
+                      restaurant={restaurant}
+                      isFavorite={favorites.includes(restaurant.id)}
+                      onToggleFavorite={(e) => handleToggleFavorite(restaurant.id, e)}
+                      onClick={() => setSelectedRestaurant(restaurant)}
+                    />
+                  ))}
+                </div>
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredRestaurants.map((rest) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {filteredRestaurants.map((restaurant) => (
                   <RestaurantCard
-                    key={rest.id}
-                    restaurant={rest}
-                    onSelect={(r) => setSelectedRestaurant(r)}
-                    isFavorite={favorites.includes(rest.id)}
-                    onToggleFavorite={handleToggleFavorite}
+                    key={restaurant.id}
+                    restaurant={restaurant}
+                    isFavorite={favorites.includes(restaurant.id)}
+                    onToggleFavorite={(e) => handleToggleFavorite(restaurant.id, e)}
+                    onClick={() => setSelectedRestaurant(restaurant)}
                   />
                 ))}
               </div>
@@ -412,16 +606,15 @@ export default function App() {
 
       </main>
 
-      {/* Dish Customization Modal */}
-      {selectedDish && (
-        <DishModal
-          dish={selectedDish}
-          onClose={() => setSelectedDish(null)}
-          onAddToCart={handleAddToCart}
-        />
-      )}
+      {/* Dish Customize & Options Modal */}
+      <DishModal
+        dish={selectedDish}
+        isOpen={Boolean(selectedDish)}
+        onClose={() => setSelectedDish(null)}
+        onAddToCart={handleAddToCart}
+      />
 
-      {/* Sliding Cart Drawer */}
+      {/* Shopping Cart Side Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -430,39 +623,39 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveCartItem}
         onClearCart={handleClearCart}
-        onCheckout={handleCheckout}
-        appliedPromoCode={appliedPromoCode}
         onApplyPromo={handleApplyPromo}
-        currentAddress={currentAddress}
+        appliedPromoCode={appliedPromoCode}
+        onCheckout={handleCheckout}
       />
 
-      {/* YAML Architecture Specification Modal */}
+      {/* YAML Architecture Modal */}
       <YamlSpecModal
         isOpen={isYamlModalOpen}
         onClose={() => setIsYamlModalOpen(false)}
       />
 
-      {/* Mobile App Conversion Guide Modal */}
+      {/* Mobile App conversion Modal */}
       <MobileExportModal
         isOpen={isMobileExportModalOpen}
         onClose={() => setIsMobileExportModalOpen(false)}
       />
 
-      {/* Address Switcher Modal */}
+      {/* Delivery Address & GPS Modal */}
       <AddressModal
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         currentAddress={currentAddress}
-        onSelectAddress={setCurrentAddress}
+        onSelectAddress={handleSelectAddress}
+        onDetectGpsLocation={handleDetectGps}
+        isDetectingGps={isDetectingGps}
       />
 
-      {/* Supabase Database Settings Modal */}
-      <SupabaseModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
+      {/* Firebase Database Status Modal */}
+      <FirebaseModal
+        isOpen={isFirebaseModalOpen}
+        onClose={() => setIsFirebaseModalOpen(false)}
       />
 
     </div>
   );
 }
-

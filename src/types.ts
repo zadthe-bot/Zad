@@ -49,6 +49,8 @@ export interface Restaurant {
   address: string;
   isFeatured?: boolean;
   isFreeDelivery?: boolean;
+  lat?: number;
+  lng?: number;
 }
 
 export interface SelectedOption {
@@ -95,6 +97,10 @@ export interface Order {
   status: OrderStatus;
   estimatedDeliveryMinutes: number;
   driver?: DriverInfo;
+  userLat?: number;
+  userLng?: number;
+  driverLat?: number;
+  driverLng?: number;
 }
 
 export type ActiveTab = 'explore' | 'orders' | 'favorites';

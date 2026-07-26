@@ -1,83 +1,67 @@
 @import "tailwindcss";
 
 @layer utilities {
-  .bg-clay-base {
-    background-color: #f0f3f8;
+  .bg-dark-canvas {
+    background-color: #0b0f17;
   }
   
-  .clay-card {
-    background: #f0f3f8;
+  /* 60% Major Dark Surface Cards */
+  .dark-card {
+    background: #121824;
     border-radius: 1.5rem;
-    box-shadow: 8px 8px 18px #d0d7e2, -8px -8px 18px #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   }
 
-  .clay-card-orange {
-    background: linear-gradient(145deg, #ff6b2b, #f04e0e);
-    border-radius: 1.5rem;
-    box-shadow: 6px 6px 14px rgba(240, 78, 14, 0.35), -4px -4px 10px rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  .dark-card-hover {
+    transition: all 0.25s ease-in-out;
   }
 
-  .clay-card-black {
-    background: linear-gradient(145deg, #1f242d, #12151b);
-    border-radius: 1.5rem;
-    box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.25), -4px -4px 10px rgba(255, 255, 255, 0.05);
+  .dark-card-hover:hover {
+    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: 0 12px 36px -8px rgba(249, 115, 22, 0.15);
+  }
+
+  /* 30% Vibrant Orange Elements */
+  .orange-button {
+    background: linear-gradient(135deg, #ff6b00, #ea580c);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -4px rgba(234, 88, 12, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .orange-button:hover {
+    background: linear-gradient(135deg, #ff7a1a, #f97316);
+    box-shadow: 0 12px 24px -4px rgba(249, 115, 22, 0.6);
+  }
+
+  .orange-button:active {
+    transform: scale(0.97);
+  }
+
+  .orange-pill {
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+  }
+
+  /* 10% Minimal Light Grey Elements (Pills, Input Fields, Minimal Contrast Badges) */
+  .minimal-grey-pill {
+    background: rgba(226, 232, 240, 0.06);
+    color: #cbd5e1;
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .clay-button-orange {
-    background: linear-gradient(145deg, #ff6b2b, #f04e0e);
-    color: #ffffff;
-    box-shadow: 4px 4px 10px rgba(240, 78, 14, 0.35), -3px -3px 8px rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .clay-button-orange:hover {
-    transform: translateY(-2px);
-    box-shadow: 6px 6px 14px rgba(240, 78, 14, 0.45), -4px -4px 10px rgba(255, 255, 255, 0.7);
+  .minimal-grey-input {
+    background: #18202e;
+    color: #f1f5f9;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .clay-button-orange:active {
-    transform: translateY(1px);
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.3);
-  }
-
-  .clay-button-black {
-    background: linear-gradient(145deg, #2a2f3a, #12151a);
-    color: #ffffff;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2), -3px -3px 8px rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .clay-button-black:hover {
-    transform: translateY(-2px);
-    box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.8);
-  }
-
-  .clay-button-black:active {
-    transform: translateY(1px);
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4);
-  }
-
-  .clay-input {
-    background: #f0f3f8;
-    box-shadow: inset 4px 4px 8px #d0d7e2, inset -4px -4px 8px #ffffff;
-    border: 1px solid rgba(208, 215, 226, 0.5);
-  }
-
-  .clay-pill {
-    background: #f0f3f8;
-    box-shadow: 4px 4px 10px #d0d7e2, -4px -4px 10px #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-  }
-
-  .clay-pill-active {
-    background: linear-gradient(145deg, #111827, #000000);
-    color: #ffffff;
-    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4), 3px 3px 8px #d0d7e2;
+  .minimal-grey-input::placeholder {
+    color: #64748b;
   }
 }
+
 
