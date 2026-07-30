@@ -94,11 +94,11 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
   const totalPrice = unitPrice * quantity;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg dark-card overflow-hidden flex flex-col max-h-[90vh] border border-slate-800 text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg white-card overflow-hidden flex flex-col max-h-[90vh] border border-emerald-100 text-slate-800 bg-white">
         
         {/* Header Banner */}
-        <div className="relative h-52 sm:h-60 w-full bg-slate-900 shrink-0">
+        <div className="relative h-52 sm:h-60 w-full bg-slate-100 shrink-0">
           <img
             src={dish.image}
             alt={dish.name}
@@ -107,7 +107,7 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
           />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/60 transition-transform active:scale-90 cursor-pointer"
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/90 hover:bg-white text-slate-800 border border-slate-200 shadow-md transition-transform active:scale-90 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -117,19 +117,19 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           <div>
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-xl font-black text-white">{dish.name}</h2>
-              <span className="text-xl font-black text-orange-400">${dish.price.toFixed(2)}</span>
+              <h2 className="text-xl font-black text-slate-900">{dish.name}</h2>
+              <span className="text-xl font-black text-emerald-700">${dish.price.toFixed(2)}</span>
             </div>
-            <p className="text-xs font-medium text-slate-400 mt-1">{dish.description}</p>
+            <p className="text-xs font-medium text-slate-600 mt-1">{dish.description}</p>
           </div>
 
           {/* Option Groups */}
           {dish.optionGroups &&
             dish.optionGroups.map((group) => (
-              <div key={group.id} className="pt-4 border-t border-slate-800">
+              <div key={group.id} className="pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-black text-white">{group.title}</h3>
-                  <span className="text-[11px] font-bold text-slate-400">
+                  <h3 className="text-sm font-black text-slate-900">{group.title}</h3>
+                  <span className="text-[11px] font-bold text-slate-500">
                     {group.required ? 'Required' : 'Optional'}
                   </span>
                 </div>
@@ -150,18 +150,18 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
                             group.required
                           )
                         }
-                        className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold transition-all cursor-pointer border ${
                           isSelected
-                            ? 'bg-orange-500/15 border border-orange-500/50 text-white'
-                            : 'minimal-grey-pill text-slate-300'
+                            ? 'green-pill text-slate-900 font-extrabold'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
                               isSelected
-                                ? 'bg-orange-500 border-orange-500 text-white'
-                                : 'border-slate-500'
+                                ? 'bg-emerald-600 border-emerald-600 text-white'
+                                : 'border-slate-400'
                             }`}
                           >
                             {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -169,7 +169,7 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
                           <span>{opt.name}</span>
                         </div>
                         {opt.price > 0 && (
-                          <span className={isSelected ? 'text-orange-400 font-extrabold' : 'text-slate-400 font-extrabold'}>
+                          <span className={isSelected ? 'text-emerald-700 font-extrabold' : 'text-slate-500 font-extrabold'}>
                             +${opt.price.toFixed(2)}
                           </span>
                         )}
@@ -181,8 +181,8 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
             ))}
 
           {/* Special Instructions */}
-          <div className="pt-4 border-t border-slate-800">
-            <label className="block text-xs font-extrabold text-slate-200 mb-2">
+          <div className="pt-4 border-t border-slate-100">
+            <label className="block text-xs font-extrabold text-slate-700 mb-2">
               Special Instructions
             </label>
             <textarea
@@ -190,29 +190,29 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
               placeholder="e.g. Extra dressing on the side, no onions..."
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              className="w-full p-3.5 rounded-2xl minimal-grey-input text-xs font-bold focus:outline-none"
+              className="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
             />
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-6 bg-[#0e1420] border-t border-slate-800 flex items-center justify-between gap-4 shrink-0">
+        <div className="p-4 sm:p-6 bg-slate-50 border-t border-emerald-100 flex items-center justify-between gap-4 shrink-0">
           
           {/* Quantity Selector */}
-          <div className="flex items-center gap-3 minimal-grey-pill px-4 py-2">
+          <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-2">
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer disabled:opacity-30"
+              className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer disabled:opacity-30"
               disabled={quantity <= 1}
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="text-sm font-black text-white min-w-4 text-center">
+            <span className="text-sm font-black text-slate-900 min-w-4 text-center">
               {quantity}
             </span>
             <button
               onClick={() => setQuantity((q) => q + 1)}
-              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -224,7 +224,7 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
               onAddToCart(dish, quantity, selectedOptions, instructions);
               onClose();
             }}
-            className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl orange-button font-black text-sm cursor-pointer active:scale-98"
+            className="flex-1 flex items-center justify-between px-6 py-3.5 rounded-2xl green-button font-black text-sm cursor-pointer shadow-md active:scale-98"
           >
             <span>Add to Cart</span>
             <span>${totalPrice.toFixed(2)}</span>
@@ -236,5 +236,6 @@ export const DishModal: React.FC<DishModalProps> = ({ dish, isOpen = true, onClo
     </div>
   );
 };
+
 
 

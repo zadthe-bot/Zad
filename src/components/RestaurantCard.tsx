@@ -25,7 +25,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
   return (
     <div
       onClick={handleClick}
-      className="group dark-card dark-card-hover overflow-hidden hover:scale-[1.02] transition-all duration-300 cursor-pointer flex flex-col h-full border border-slate-800/80"
+      className="group white-card white-card-hover overflow-hidden hover:scale-[1.02] transition-all duration-300 cursor-pointer flex flex-col h-full border border-emerald-100 bg-white"
     >
       {/* Banner Image & Badges */}
       <div className="relative h-48 w-full overflow-hidden">
@@ -37,13 +37,13 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
         />
         
         {/* Subtle Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#121824] via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/30" />
 
         {/* Favorite Heart Button */}
         {onToggleFavorite && (
           <button
             onClick={(e) => onToggleFavorite(restaurant.id, e)}
-            className="absolute top-3.5 right-3.5 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-red-500 transition-all z-10 cursor-pointer active:scale-90 border border-slate-700/60"
+            className="absolute top-3.5 right-3.5 p-2.5 rounded-full bg-white/90 hover:bg-white text-slate-400 hover:text-red-500 transition-all z-10 cursor-pointer active:scale-90 border border-slate-200 shadow-md"
           >
             <Heart
               className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
@@ -54,19 +54,19 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
         {/* Tag Badges */}
         <div className="absolute top-3.5 left-3.5 flex flex-wrap gap-2">
           {restaurant.isFeatured && (
-            <span className="px-3 py-1 rounded-2xl orange-button text-[11px] font-black">
+            <span className="px-3 py-1 rounded-2xl green-button text-[11px] font-black">
               ★ Top Pick
             </span>
           )}
           {restaurant.isFreeDelivery && (
-            <span className="px-3 py-1 rounded-2xl bg-emerald-500/90 text-white text-[11px] font-black shadow-md border border-emerald-400/30">
+            <span className="px-3 py-1 rounded-2xl bg-white text-emerald-700 text-[11px] font-black shadow-md border border-emerald-200">
               Free Delivery
             </span>
           )}
         </div>
 
         {/* Logo Overlay */}
-        <div className="absolute -bottom-4 left-4 rounded-2xl overflow-hidden w-13 h-13 shadow-xl border-2 border-orange-500/80 bg-slate-900">
+        <div className="absolute -bottom-4 left-4 rounded-2xl overflow-hidden w-13 h-13 shadow-md border-2 border-emerald-600 bg-white">
           <img
             src={restaurant.logoImage}
             alt={restaurant.name}
@@ -77,43 +77,43 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
       </div>
 
       {/* Details Body */}
-      <div className="p-5 pt-7 flex-1 flex flex-col justify-between text-slate-100">
+      <div className="p-5 pt-7 flex-1 flex flex-col justify-between text-slate-800">
         <div>
           <div className="flex items-start justify-between gap-2 mb-1.5">
-            <h3 className="text-lg font-black text-white group-hover:text-orange-400 transition-colors leading-snug">
+            <h3 className="text-lg font-black text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
               {restaurant.name}
             </h3>
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-orange-500/15 border border-orange-500/30 text-xs font-black shrink-0 text-orange-400">
-              <Star className="w-3.5 h-3.5 fill-orange-500 text-orange-500" />
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl green-pill text-xs font-black shrink-0">
+              <Star className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
               <span>{restaurant.rating}</span>
-              <span className="text-slate-400 font-bold">({restaurant.reviewCount})</span>
+              <span className="text-slate-500 font-bold">({restaurant.reviewCount})</span>
             </div>
           </div>
 
-          <p className="text-xs font-medium text-slate-400 line-clamp-2 mb-4">
+          <p className="text-xs font-medium text-slate-600 line-clamp-2 mb-4">
             {restaurant.tagline}
           </p>
         </div>
 
         {/* Footer Meta */}
-        <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-slate-300">
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700">
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-orange-500" />
+            <Clock className="w-3.5 h-3.5 text-emerald-600" />
             <span>{restaurant.deliveryTime}</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <Bike className="w-3.5 h-3.5 text-slate-400" />
+            <Bike className="w-3.5 h-3.5 text-slate-500" />
             <span>
               {restaurant.deliveryFee === 0 ? (
-                <span className="text-emerald-400 font-black">FREE</span>
+                <span className="text-emerald-600 font-black">FREE</span>
               ) : (
                 `$${restaurant.deliveryFee.toFixed(2)}`
               )}
             </span>
           </div>
 
-          <div className="px-2 py-0.5 rounded-lg minimal-grey-pill text-slate-300 text-[11px] font-bold">
+          <div className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold">
             {restaurant.priceRange}
           </div>
         </div>
@@ -122,5 +122,6 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({
     </div>
   );
 };
+
 
 

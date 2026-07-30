@@ -22,8 +22,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             onClick={() => onSelectCategory(cat.id)}
             className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all cursor-pointer ${
               isSelected
-                ? 'orange-button scale-102 shadow-lg shadow-orange-500/30'
-                : 'minimal-grey-pill text-slate-300 hover:text-white hover:border-slate-700'
+                ? 'green-button scale-102 shadow-md'
+                : 'bg-white text-slate-800 border border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50/50 shadow-xs'
             }`}
           >
             <span className="text-base leading-none">{cat.emoji}</span>
@@ -34,5 +34,6 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 };
+
 
 
