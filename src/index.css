@@ -5,49 +5,59 @@
     background-color: #f8fafc;
   }
   
-  /* White Surface Cards with crisp light borders & cool green accent touches */
+  /* White Surface Cards with crisp slate grey borders & dark green shadow accents */
   .white-card {
     background: #ffffff;
     border-radius: 1.5rem;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 20px -5px rgba(5, 150, 105, 0.05);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(2, 44, 34, 0.04);
   }
 
   .white-card-hover {
-    transition: all 0.25s ease-in-out;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .white-card-hover:hover {
-    border-color: #059669;
-    box-shadow: 0 10px 30px -5px rgba(5, 150, 105, 0.15);
+    border-color: #064e3b;
+    box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.1), 0 12px 15px -5px rgba(6, 78, 59, 0.18);
     transform: translateY(-2px);
   }
 
-  /* Cool Green Buttons & Badges */
+  /* Dark Green Buttons & Accent Controls */
   .green-button {
-    background: #059669;
+    background: linear-gradient(135deg, #022c22 0%, #064e3b 100%);
     color: #ffffff;
-    box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.4);
-    border: 1px solid #047857;
+    box-shadow: 0 6px 18px -4px rgba(2, 44, 34, 0.4);
+    border: 1px solid #022c22;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .green-button:hover {
-    background: #047857;
-    box-shadow: 0 6px 20px -2px rgba(5, 150, 105, 0.5);
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    box-shadow: 0 8px 24px -4px rgba(6, 78, 59, 0.55);
+    transform: translateY(-1px);
   }
 
   .green-button:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
+  /* Dark Green & White Grey Pill (No Light Green) */
   .green-pill {
-    background: #ecfdf5;
-    color: #047857;
-    border: 1px solid #a7f3d0;
+    background: #f1f5f9;
+    color: #022c22;
+    border: 1px solid #cbd5e1;
+    font-weight: 800;
   }
 
-  /* Minimal Crisp Light Inputs & Accessories */
+  .green-pill-active {
+    background: #064e3b;
+    color: #ffffff;
+    border: 1px solid #022c22;
+    font-weight: 800;
+  }
+
+  /* Minimal Crisp Inputs & Accessories */
   .minimal-green-input {
     background: #ffffff;
     color: #0f172a;
@@ -55,14 +65,11 @@
   }
 
   .minimal-green-input:focus {
-    border-color: #059669;
-    outline: 2px solid rgba(5, 150, 105, 0.2);
+    border-color: #064e3b;
+    outline: 2px solid rgba(6, 78, 59, 0.25);
   }
 
   .minimal-green-input::placeholder {
     color: #94a3b8;
   }
 }
-
-
-

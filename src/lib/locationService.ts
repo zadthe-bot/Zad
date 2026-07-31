@@ -1,4 +1,5 @@
 import { Restaurant, Dish } from '../types';
+import { MOCK_RESTAURANTS } from '../data/mockData';
 import { saveRestaurantsToFirebase } from './firebase';
 
 export interface UserCoordinates {
@@ -365,89 +366,35 @@ function generateContextualRegionalRestaurants(
   const baseLat = isIringa ? -7.7731 : userLat;
   const baseLng = isIringa ? 35.6994 : userLng;
 
-  const realIringaSpots: Restaurant[] = [
-    {
-      id: 'iringa-1',
-      name: 'Neema Crafts Cafe & Bistro',
-      tagline: 'Famous fair-trade cafe in Iringa serving fresh espresso, homemade cakes & organic meals',
-      rating: 4.9,
-      reviewCount: 310,
-      deliveryTime: '15-25 min',
-      deliveryFee: 0,
-      minOrder: 8,
-      priceRange: '$$',
-      cuisines: ['Drinks', 'Healthy', 'African'],
-      bannerImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80',
-      logoImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=300&q=80',
-      address: 'Boma Road, Iringa Town, Tanzania',
-      isFeatured: true,
-      isFreeDelivery: true,
-      lat: baseLat + 0.005,
-      lng: baseLng + 0.003,
-    },
-    {
-      id: 'iringa-2',
-      name: 'Sarafina Restaurant & Grill',
-      tagline: 'Authentic local Nyama Choma, grilled chicken, Mishkaki, and Swahili dishes',
-      rating: 4.8,
-      reviewCount: 215,
-      deliveryTime: '20-30 min',
-      deliveryFee: 1.0,
-      minOrder: 10,
-      priceRange: '$',
-      cuisines: ['African', 'Burgers'],
-      bannerImage: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80',
-      logoImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=300&q=80',
-      address: ' Uhuru Avenue, Iringa Centre',
-      isFeatured: true,
-      isFreeDelivery: false,
-      lat: baseLat - 0.004,
-      lng: baseLng - 0.006,
-    },
-    {
-      id: 'iringa-3',
-      name: 'Sunset Hotel & Garden Restaurant',
-      tagline: 'Scenic garden view restaurant serving fresh tilapia, steaks & woodfired pizza',
-      rating: 4.7,
-      reviewCount: 180,
-      deliveryTime: '25-35 min',
-      deliveryFee: 1.5,
-      minOrder: 12,
-      priceRange: '$$',
-      cuisines: ['Pizza', 'African'],
-      bannerImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
-      logoImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=300&q=80',
-      address: 'Gangilonga Rock Road, Iringa',
-      isFeatured: false,
-      isFreeDelivery: false,
-      lat: baseLat + 0.008,
-      lng: baseLng - 0.004,
-    },
-    {
-      id: 'iringa-4',
-      name: 'Mama Africa Swahili Food Spot',
-      tagline: 'Traditional Swahili rice, beans, wali wa nazi & fresh tropical juices',
-      rating: 4.8,
-      reviewCount: 140,
-      deliveryTime: '15-20 min',
-      deliveryFee: 0,
-      minOrder: 5,
-      priceRange: '$',
-      cuisines: ['African', 'Healthy'],
-      bannerImage: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=1000&q=80',
-      logoImage: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80',
-      address: 'Dodoma Road Junction, Iringa',
-      isFeatured: false,
-      isFreeDelivery: true,
-      lat: baseLat - 0.006,
-      lng: baseLng + 0.007,
-    },
+  const offsets = [
+    { lat: 0.005, lng: 0.003 },
+    { lat: -0.004, lng: -0.006 },
+    { lat: 0.008, lng: -0.004 },
+    { lat: -0.006, lng: 0.007 },
+    { lat: 0.002, lng: -0.008 },
+    { lat: -0.003, lng: 0.005 },
+    { lat: 0.006, lng: 0.009 },
+    { lat: -0.007, lng: -0.002 },
+    { lat: 0.004, lng: -0.005 },
+    { lat: -0.002, lng: 0.003 },
+    { lat: 0.009, lng: 0.001 },
+    { lat: -0.008, lng: -0.007 },
   ];
 
+  const regionalSpots: Restaurant[] = MOCK_RESTAURANTS.map((rest, index) => {
+    const offset = offsets[index % offsets.length];
+    return {
+      ...rest,
+      lat: baseLat + offset.lat,
+      lng: baseLng + offset.lng,
+      address: rest.address.includes(locationName) ? rest.address : `${rest.address}, ${locationName}`,
+    };
+  });
+
   const dishes: Record<string, Dish[]> = {};
-  realIringaSpots.forEach((r) => {
+  regionalSpots.forEach((r) => {
     dishes[r.id] = generateDishesForRestaurant(r.id, r.name, r.cuisines);
   });
 
-  return { restaurants: realIringaSpots, dishes };
+  return { restaurants: regionalSpots, dishes };
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { CategoryFilter } from './components/CategoryFilter';
-import { PromoBanners } from './components/PromoBanners';
 import { RestaurantCard } from './components/RestaurantCard';
 import { RestaurantDetail } from './components/RestaurantDetail';
 import { DishModal } from './components/DishModal';
@@ -93,13 +92,24 @@ export default function App() {
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState<boolean>(false);
 
   // Fetch real restaurants for location
-  const loadRealRestaurantsForLocation = async (addressQuery: string, useGps: boolean = false) => {
+  const loadRealRestaurantsForLocation = async (
+    addressQuery: string,
+    useGps: boolean = false,
+    customLat?: number,
+    customLng?: number
+  ) => {
     setIsLoadingNearby(true);
     if (useGps) setIsDetectingGps(true);
 
     try {
       let coords;
-      if (useGps) {
+      if (typeof customLat === 'number' && typeof customLng === 'number') {
+        coords = {
+          lat: customLat,
+          lng: customLng,
+          addressName: addressQuery || `${customLat.toFixed(3)}°, ${customLng.toFixed(3)}°`,
+        };
+      } else if (useGps) {
         coords = await getCurrentGpsLocation();
       } else {
         coords = await geocodeCity(addressQuery);
@@ -162,8 +172,8 @@ export default function App() {
   }, []);
 
   // Handle Address change selection from Modal
-  const handleSelectAddress = (newAddr: string) => {
-    loadRealRestaurantsForLocation(newAddr, false);
+  const handleSelectAddress = (newAddr: string, lat?: number, lng?: number) => {
+    loadRealRestaurantsForLocation(newAddr, false, lat, lng);
   };
 
   // Handle GPS location click
@@ -452,14 +462,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Promo Banner Carousel */}
-            <PromoBanners
-              onApplyPromoClick={(code) => {
-                setAppliedPromoCode(code);
-                setIsCartOpen(true);
-              }}
-            />
-
             {/* Cuisines Filter Row */}
             <div className="my-8">
               <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pl-1">
@@ -565,28 +567,16 @@ export default function App() {
                 </button>
               </div>
             ) : feedViewMode === 'map' ? (
-              <div className="space-y-6">
-                <InteractiveMap
-                  userLat={userCoords.lat}
-                  userLng={userCoords.lng}
-                  userAddress={currentAddress}
-                  restaurants={filteredRestaurants}
-                  selectedRestaurant={selectedRestaurant}
-                  onSelectRestaurant={(rest) => setSelectedRestaurant(rest)}
-                />
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredRestaurants.map((restaurant) => (
-                    <RestaurantCard
-                      key={restaurant.id}
-                      restaurant={restaurant}
-                      isFavorite={favorites.includes(restaurant.id)}
-                      onToggleFavorite={(e) => handleToggleFavorite(restaurant.id, e)}
-                      onClick={() => setSelectedRestaurant(restaurant)}
-                    />
-                  ))}
-                </div>
-              </div>
+              <InteractiveMap
+                userLat={userCoords.lat}
+                userLng={userCoords.lng}
+                userAddress={currentAddress}
+                restaurants={filteredRestaurants}
+                selectedRestaurant={selectedRestaurant}
+                onSelectRestaurant={(rest) => setSelectedRestaurant(rest)}
+                defaultFullScreen={true}
+                onCloseFullScreen={() => setFeedViewMode('grid')}
+              />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {filteredRestaurants.map((restaurant) => (

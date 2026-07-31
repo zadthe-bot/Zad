@@ -75,7 +75,6 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
     e.preventDefault();
     if (!userChatInput.trim()) return;
     setChatMessages((prev) => [...prev, { sender: 'user', text: userChatInput.trim() }]);
-    const sent = userChatInput;
     setUserChatInput('');
 
     setTimeout(() => {
@@ -93,24 +92,24 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={onBackToExplore}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-xs font-black text-slate-800 hover:text-emerald-950 transition-colors cursor-pointer shadow-xs"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Feed</span>
         </button>
 
-        <span className="text-xs font-mono font-bold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-xs">
+        <span className="text-xs font-mono font-black text-slate-900 bg-white px-3 py-1 rounded-full border border-slate-300 shadow-xs">
           Order #{order.id}
         </span>
       </div>
 
       {/* Main Status Hero */}
-      <div className="white-card p-6 sm:p-8 mb-6 relative overflow-hidden border border-emerald-100 bg-white shadow-md">
+      <div className="white-card p-6 sm:p-8 mb-6 relative overflow-hidden border border-slate-300 bg-white shadow-md">
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full green-pill text-xs font-bold mb-3">
-              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-xs font-black mb-3 text-slate-900">
+              <Clock className="w-3.5 h-3.5 text-emerald-950" />
               <span>
                 {currentStatus === 'delivered' ? 'Arrived!' : 'Estimated Arrival'}
               </span>
@@ -118,15 +117,15 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
 
             <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
               {currentStatus === 'delivered' ? (
-                <span className="text-emerald-700">Delivered!</span>
+                <span className="text-emerald-950">Delivered!</span>
               ) : (
                 `${minutesLeft} - ${minutesLeft + 5} mins`
               )}
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-              Delivering from <strong className="text-slate-900">{order.restaurant.name}</strong> to{' '}
-              <strong className="text-slate-900">{order.deliveryAddress}</strong>
+            <p className="text-xs sm:text-sm text-slate-700 font-semibold mt-1">
+              Delivering from <strong className="text-slate-950 font-black">{order.restaurant.name}</strong> to{' '}
+              <strong className="text-slate-950 font-black">{order.deliveryAddress}</strong>
             </p>
           </div>
 
@@ -135,7 +134,7 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
               src={order.restaurant.logoImage}
               alt={order.restaurant.name}
               referrerPolicy="no-referrer"
-              className="w-16 h-16 rounded-2xl object-cover border border-emerald-200 shadow-xs shrink-0 bg-white"
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-950 shadow-xs shrink-0 bg-white"
             />
           </div>
         </div>
@@ -149,7 +148,7 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
             
             {/* Active Filled Line */}
             <div
-              className="absolute top-1/2 left-0 h-1 bg-emerald-600 -translate-y-1/2 z-0 transition-all duration-700"
+              className="absolute top-1/2 left-0 h-1 bg-emerald-950 -translate-y-1/2 z-0 transition-all duration-700"
               style={{
                 width: `${(getCurrentStepIndex() / (STATUS_STEPS.length - 1)) * 100}%`,
               }}
@@ -162,20 +161,20 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
               return (
                 <div key={step.key} className="relative z-10 flex flex-col items-center">
                   <div
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs transition-all ${
                       isCurrent
-                        ? 'green-button text-white ring-4 ring-emerald-600/20 scale-110 shadow-md'
+                        ? 'green-button text-white ring-4 ring-emerald-950/20 scale-110 shadow-md'
                         : isPassed
-                        ? 'bg-emerald-600 text-white'
+                        ? 'bg-emerald-950 text-white'
                         : 'bg-white border-2 border-slate-300 text-slate-400'
                     }`}
                   >
-                    {isPassed ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
+                    {isPassed ? <CheckCircle2 className="w-5 h-5 text-white" /> : idx + 1}
                   </div>
 
                   <span
-                    className={`text-[10px] sm:text-xs font-bold mt-2 text-center max-w-[70px] sm:max-w-none ${
-                      isCurrent ? 'text-emerald-700 font-extrabold' : 'text-slate-500'
+                    className={`text-[10px] sm:text-xs font-black mt-2 text-center max-w-[70px] sm:max-w-none ${
+                      isCurrent ? 'text-emerald-950 font-black' : 'text-slate-500'
                     }`}
                   >
                     {step.label}
@@ -192,11 +191,11 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
       {/* Real-time Interactive GPS Tracking Map */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2 px-1">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-700">
-            <Navigation className="w-4 h-4 animate-spin text-emerald-600" />
-            <span>Real-time GPS Live Courier Movement</span>
+          <div className="flex items-center gap-2 text-xs font-black text-slate-900">
+            <Navigation className="w-4 h-4 animate-spin text-emerald-950" />
+            <span>Real-time MapLibre 3D Live Courier Tracking</span>
           </div>
-          <span className="text-[11px] font-mono text-slate-500">OSM Live Tiles</span>
+          <span className="text-[11px] font-mono font-bold text-slate-600">MapLibre GL Vector</span>
         </div>
 
         <InteractiveMap
@@ -214,22 +213,22 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
 
       {/* Driver Card & Contact */}
       {order.driver && (
-        <div className="white-card p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-100 bg-white shadow-md">
+        <div className="white-card p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-300 bg-white shadow-md">
           <div className="flex items-center gap-4">
             <img
               src={order.driver.avatar}
               alt={order.driver.name}
               referrerPolicy="no-referrer"
-              className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 shadow-xs"
+              className="w-14 h-14 rounded-full object-cover border-2 border-emerald-950 shadow-xs"
             />
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-900">{order.driver.name}</h3>
-                <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold rounded-md">
+                <h3 className="text-base font-black text-slate-900">{order.driver.name}</h3>
+                <span className="px-2 py-0.5 bg-slate-100 border border-slate-300 text-slate-900 text-[11px] font-black rounded-md">
                   ★ {order.driver.rating}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 font-semibold mt-0.5">
                 {order.driver.vehicle} • <span className="font-mono">{order.driver.plateNumber}</span>
               </p>
             </div>
@@ -238,16 +237,16 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={() => setShowChatModal(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold transition-colors cursor-pointer hover:bg-slate-200"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 border border-slate-300 text-slate-900 text-xs font-black transition-colors cursor-pointer hover:bg-slate-200"
             >
-              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <MessageSquare className="w-4 h-4 text-emerald-950" />
               <span>Chat</span>
             </button>
             <button
               onClick={() => setShowCallModal(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl green-button text-xs font-bold transition-colors cursor-pointer shadow-xs"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl green-button text-xs font-black transition-colors cursor-pointer shadow-xs"
             >
-              <Phone className="w-4 h-4" />
+              <Phone className="w-4 h-4 text-white" />
               <span>Call Driver</span>
             </button>
           </div>
@@ -255,47 +254,47 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
       )}
 
       {/* Order Summary Details */}
-      <div className="white-card p-6 border border-emerald-100 bg-white shadow-md">
-        <h3 className="text-sm font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">
+      <div className="white-card p-6 border border-slate-300 bg-white shadow-md">
+        <h3 className="text-sm font-black text-slate-900 mb-4 pb-2 border-b border-slate-200">
           Order Summary
         </h3>
 
         <div className="space-y-3">
           {order.items.map((item) => (
-            <div key={item.cartItemId} className="flex items-center justify-between text-xs text-slate-700">
+            <div key={item.cartItemId} className="flex items-center justify-between text-xs text-slate-800">
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-700 font-bold flex items-center justify-center text-[11px] border border-emerald-200">
+                <span className="w-5 h-5 rounded-md bg-slate-100 text-slate-900 font-black flex items-center justify-center text-[11px] border border-slate-300">
                   {item.quantity}x
                 </span>
-                <span className="font-medium text-slate-800">{item.dish.name}</span>
+                <span className="font-extrabold text-slate-900">{item.dish.name}</span>
               </div>
-              <span className="font-bold text-slate-900">${item.totalPrice.toFixed(2)}</span>
+              <span className="font-black text-slate-900">${item.totalPrice.toFixed(2)}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
+        <div className="mt-4 pt-4 border-t border-slate-200 space-y-1.5 text-xs text-slate-600 font-semibold">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="text-slate-800">${order.subtotal.toFixed(2)}</span>
+            <span className="text-slate-900 font-bold">${order.subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span>Delivery Fee</span>
-            <span className="text-slate-800">${order.deliveryFee.toFixed(2)}</span>
+            <span className="text-slate-900 font-bold">${order.deliveryFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span>Tip</span>
-            <span className="text-slate-800">${order.tip.toFixed(2)}</span>
+            <span className="text-slate-900 font-bold">${order.tip.toFixed(2)}</span>
           </div>
           {order.discount > 0 && (
-            <div className="flex justify-between text-emerald-700 font-bold">
+            <div className="flex justify-between text-emerald-950 font-black">
               <span>Discount</span>
               <span>-${order.discount.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-200">
+          <div className="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-300">
             <span>Total Paid</span>
-            <span className="text-emerald-700">${order.total.toFixed(2)}</span>
+            <span className="text-emerald-950 font-black">${order.total.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -303,15 +302,15 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
       {/* Driver Call Modal */}
       {showCallModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="white-card p-6 max-w-sm w-full text-center shadow-2xl border border-emerald-100 bg-white">
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4 border border-emerald-200 animate-bounce">
+          <div className="white-card p-6 max-w-sm w-full text-center shadow-2xl border border-slate-300 bg-white">
+            <div className="w-16 h-16 rounded-full bg-slate-100 text-emerald-950 flex items-center justify-center mx-auto mb-4 border border-slate-300 animate-bounce">
               <Phone className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Calling {order.driver?.name}...</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-6">{order.driver?.phone}</p>
+            <h3 className="text-lg font-black text-slate-900">Calling {order.driver?.name}...</h3>
+            <p className="text-xs text-slate-600 font-semibold mt-1 mb-6">{order.driver?.phone}</p>
             <button
               onClick={() => setShowCallModal(false)}
-              className="w-full py-2.5 rounded-full bg-red-600 text-white font-bold text-xs cursor-pointer hover:bg-red-700 transition-colors"
+              className="w-full py-2.5 rounded-full bg-slate-900 text-white font-black text-xs cursor-pointer hover:bg-slate-800 transition-colors"
             >
               End Call
             </button>
@@ -322,18 +321,18 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
       {/* Driver Chat Modal */}
       {showChatModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="white-card p-6 max-w-md w-full shadow-2xl flex flex-col h-[450px] border border-emerald-100 bg-white">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="white-card p-6 max-w-md w-full shadow-2xl flex flex-col h-[450px] border border-slate-300 bg-white">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-3">
                 <img
                   src={order.driver?.avatar}
                   alt={order.driver?.name}
                   referrerPolicy="no-referrer"
-                  className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                  className="w-10 h-10 rounded-full object-cover border border-slate-300"
                 />
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">{order.driver?.name}</h4>
-                  <span className="text-[10px] text-emerald-700 font-semibold">Active en route</span>
+                  <h4 className="text-sm font-black text-slate-900">{order.driver?.name}</h4>
+                  <span className="text-[10px] text-emerald-950 font-extrabold">Active en route</span>
                 </div>
               </div>
               <button
@@ -351,10 +350,10 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
                   className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] p-3 rounded-2xl text-xs font-medium ${
+                    className={`max-w-[80%] p-3 rounded-2xl text-xs font-semibold ${
                       msg.sender === 'user'
                         ? 'green-button text-white font-bold rounded-br-none'
-                        : 'bg-slate-100 text-slate-800 border border-slate-200 rounded-bl-none'
+                        : 'bg-slate-100 text-slate-900 border border-slate-300 rounded-bl-none'
                     }`}
                   >
                     {msg.text}
@@ -363,17 +362,17 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
               ))}
             </div>
 
-            <form onSubmit={handleSendChat} className="flex gap-2 pt-2 border-t border-slate-100">
+            <form onSubmit={handleSendChat} className="flex gap-2 pt-2 border-t border-slate-200">
               <input
                 type="text"
                 placeholder="Type a message to driver..."
                 value={userChatInput}
                 onChange={(e) => setUserChatInput(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-emerald-600"
+                className="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-300 text-slate-900 focus:outline-none focus:border-emerald-950 font-semibold"
               />
               <button
                 type="submit"
-                className="px-4 py-2 green-button text-xs font-bold rounded-xl cursor-pointer"
+                className="px-4 py-2 green-button text-xs font-black rounded-xl cursor-pointer"
               >
                 Send
               </button>
@@ -385,5 +384,3 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({ order, onBackToExplo
     </div>
   );
 };
-
-

@@ -20,10 +20,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           <button
             key={cat.id}
             onClick={() => onSelectCategory(cat.id)}
-            className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all cursor-pointer ${
+            className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black whitespace-nowrap transition-all cursor-pointer ${
               isSelected
                 ? 'green-button scale-102 shadow-md'
-                : 'bg-white text-slate-800 border border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50/50 shadow-xs'
+                : 'bg-white text-slate-800 border border-slate-300 hover:border-emerald-900 hover:text-emerald-950 shadow-xs'
             }`}
           >
             <span className="text-base leading-none">{cat.emoji}</span>
@@ -34,6 +34,3 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 };
-
-
-
